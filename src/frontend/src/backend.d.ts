@@ -29,6 +29,7 @@ export interface Transaction {
 export interface backendInterface {
     addCoins(amount: bigint): Promise<void>;
     getBalance(): Promise<bigint>;
+    getMyProfile(): Promise<Profile | null>;
     getRecentWins(): Promise<Array<GameResult>>;
     getTopPlayers(): Promise<Array<Profile>>;
     getTransactions(): Promise<Array<Transaction>>;

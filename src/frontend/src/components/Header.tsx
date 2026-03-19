@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Link, useRouter } from "@tanstack/react-router";
-import { Gamepad2, Home, Plus, Trophy, Wallet } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { BarChart2, Gamepad2, Home, Plus, Trophy, Wallet } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 export default function Header() {
@@ -61,6 +61,13 @@ export default function Header() {
             data-ocid="nav.wallet.link"
           >
             <Wallet className="w-4 h-4" /> Wallet
+          </Link>
+          <Link
+            to="/history"
+            className="text-gray-300 hover:text-white text-sm font-semibold tracking-wide transition-colors flex items-center gap-1"
+            data-ocid="nav.history.link"
+          >
+            <BarChart2 className="w-4 h-4" /> History
           </Link>
         </nav>
 

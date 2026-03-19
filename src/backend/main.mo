@@ -47,9 +47,15 @@ actor {
   let depositRequests = Map.empty<Principal, List.List<DepositRequest>>();
   let gameResults = List.empty<GameResult>();
 
+  // Returns the caller's profile, or null if not registered
+  public query ({ caller }) func getMyProfile() : async ?Profile {
+    profiles.get(caller);
+  };
+
+  // Idempotent: silently returns if user already registered
   public shared ({ caller }) func register(username : Text, phone : Text) : async () {
     if (profiles.containsKey(caller)) {
-      Runtime.trap("User already registered");
+      return;
     };
     let newProfile : Profile = {
       username;
@@ -90,9 +96,10 @@ actor {
     };
   };
 
+  // Returns 0 instead of trapping when user not found
   public query ({ caller }) func getBalance() : async Nat {
     switch (profiles.get(caller)) {
-      case (null) { Runtime.trap("User not found") };
+      case (null) { 0 };
       case (?profile) { profile.balance };
     };
   };

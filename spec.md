@@ -1,44 +1,26 @@
 # Lucky Spin Casino
 
 ## Current State
-New project. No existing application.
+App has a single RegisterModal that only shows a register form. Returning users who are already registered get a "User already registered" error. The backend has no endpoint to fetch the current user profile, so there is no way to detect existing registration on load.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Full casino gaming platform with 6 games: Mines, Aviator, 777 Slots, 500 Lucky Slot, Fortunes Gem 500, Power of Kraken
-- Virtual coin wallet system (not real money)
-- User registration with phone number (earns bonus coins)
-- Player profile with balance display
-- Deposit request flow (in-app, not real money)
-- Live winners feed / jackpot display
-- Game lobby with featured game cards
+- getMyProfile() backend query returning Option<Profile>
+- Auto-session restore in UserContext on actor load
+- Login tab in auth modal for returning users
 
 ### Modify
-N/A
+- RegisterModal: add Login tab / returning user detection
+- UserContext: call getMyProfile on actor load
+- backend.d.ts: add getMyProfile signature
+- main.mo: add getMyProfile query
 
 ### Remove
-N/A
+- Hard trap when user already registered
 
 ## Implementation Plan
-
-### Backend (Motoko)
-- User profile: username, phone number, coin balance
-- Wallet: get balance, add coins (demo/virtual), transaction history
-- Game results: record win/loss, update balance
-- Leaderboard: top winners
-- Deposit request: store request (in-app only, no external integration)
-
-### Frontend
-- Home/Lobby page with hero section, featured game grid, live winners strip
-- Individual game screens:
-  1. **Mines** - grid of tiles, pick safe squares, avoid bombs
-  2. **Aviator** - multiplier crash game, cash out before plane flies away
-  3. **777 Slots** - classic 3-reel slot machine
-  4. **500 Lucky Slot** - 5-reel slot with lucky symbols
-  5. **Fortunes Gem 500** - gem-themed slot with cascading wins
-  6. **Power of Kraken** - underwater themed slot with kraken wilds
-- Wallet/balance widget in header
-- Phone number registration for bonus coins
-- Deposit request modal (in-app)
-- Responsive layout
+1. Update main.mo: add getMyProfile returning ?Profile
+2. Update backend.d.ts: add getMyProfile
+3. Update UserContext: restore session silently if profile found
+4. Rewrite RegisterModal as AuthModal with login/register tabs

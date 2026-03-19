@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { History, Loader2, Plus, Send } from "lucide-react";
+import { Copy, History, Loader2, Plus, Send } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,10 +11,18 @@ import { useActor } from "../hooks/useActor";
 import { useTransactions } from "../hooks/useQueries";
 
 const ADD_AMOUNTS = [500, 1000, 2000, 5000, 10000, 50000];
+const WHATSAPP_NUMBER = "919149613487";
+const UPI_ID = "9149613487@fam";
 
 export default function WalletPage() {
-  const { balance, setBalance, username, isRegistered, setShowRegisterModal } =
-    useUser();
+  const {
+    balance,
+    setBalance,
+    username,
+    phone,
+    isRegistered,
+    setShowRegisterModal,
+  } = useUser();
   const { actor } = useActor();
   const {
     data: transactions,
@@ -26,6 +34,16 @@ export default function WalletPage() {
   const [depositContact, setDepositContact] = useState("");
   const [depositLoading, setDepositLoading] = useState(false);
   const [depositSuccess, setDepositSuccess] = useState(false);
+
+  // UPI deposit state
+  const [utrNumber, setUtrNumber] = useState("");
+  const [upiAmount, setUpiAmount] = useState("");
+  const [upiPhone, setUpiPhone] = useState("");
+
+  // Withdraw state
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawPhone, setWithdrawPhone] = useState(phone || "");
+  const [withdrawUpi, setWithdrawUpi] = useState("");
 
   const handleAddCoins = async (amount: number) => {
     if (!actor) return;
@@ -70,6 +88,51 @@ export default function WalletPage() {
     } finally {
       setDepositLoading(false);
     }
+  };
+
+  const handleUpiDeposit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!utrNumber.trim()) {
+      toast.error("Enter UTR number");
+      return;
+    }
+    if (!upiAmount || Number(upiAmount) <= 0) {
+      toast.error("Enter valid amount");
+      return;
+    }
+    if (!upiPhone.trim()) {
+      toast.error("Enter your WhatsApp number");
+      return;
+    }
+    const msg = `UTR: ${utrNumber} Amount: ${upiAmount} WhatsApp: ${upiPhone} | Add Money Request Lucky Spin Casino`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+    toast.success("Opening WhatsApp to send deposit request!");
+  };
+
+  const handleWithdraw = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!withdrawAmount || Number(withdrawAmount) < 500) {
+      toast.error("Minimum withdraw is 500 coins");
+      return;
+    }
+    if (!withdrawPhone.trim()) {
+      toast.error("Enter your WhatsApp number");
+      return;
+    }
+    if (!withdrawUpi.trim()) {
+      toast.error("Enter your UPI ID");
+      return;
+    }
+    const msg = `WITHDRAW REQUEST: Amount: ${withdrawAmount} UPI: ${withdrawUpi} WhatsApp: ${withdrawPhone} | Lucky Spin Casino`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+    toast.success("Opening WhatsApp to send withdraw request!");
+  };
+
+  const copyUpiId = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    toast.success("UPI ID copied!");
   };
 
   return (
@@ -165,6 +228,197 @@ export default function WalletPage() {
             </p>
           </div>
         </div>
+
+        {/* UPI Deposit Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="rounded-2xl p-6 mb-8"
+          style={{
+            background: "#111",
+            border: "2px solid oklch(0.82 0.19 80)",
+            boxShadow: "0 0 30px oklch(0.82 0.19 80 / 0.25)",
+          }}
+        >
+          <h2 className="font-black text-white text-xl mb-5 flex items-center gap-2">
+            <span style={{ color: "oklch(0.82 0.19 80)" }}>💳</span> Add Money
+            via UPI
+          </h2>
+
+          {/* QR Code + UPI ID */}
+          <div className="flex flex-col md:flex-row gap-6 mb-6 items-center md:items-start">
+            <div className="flex flex-col items-center gap-3">
+              <img
+                src="/assets/uploads/IMG-20251213-WA0003-1.jpg"
+                alt="UPI QR Code"
+                className="rounded-xl object-contain"
+                style={{
+                  maxWidth: 220,
+                  width: "100%",
+                  border: "3px solid oklch(0.82 0.19 80)",
+                  boxShadow: "0 0 20px oklch(0.82 0.19 80 / 0.4)",
+                }}
+              />
+              <div
+                className="flex items-center gap-2 rounded-xl px-4 py-2"
+                style={{
+                  background: "#1a1a1a",
+                  border: "1px solid oklch(0.82 0.19 80 / 0.5)",
+                }}
+              >
+                <span className="text-white font-mono font-bold text-sm">
+                  {UPI_ID}
+                </span>
+                <button
+                  type="button"
+                  onClick={copyUpiId}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  data-ocid="wallet.toggle"
+                  title="Copy UPI ID"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1">
+              <div
+                className="rounded-xl p-4 mb-4"
+                style={{
+                  background: "#0a0a0a",
+                  border: "1px solid oklch(0.82 0.19 80 / 0.3)",
+                }}
+              >
+                <p className="text-gray-300 text-sm font-semibold mb-2">
+                  How to deposit:
+                </p>
+                <ol className="text-gray-400 text-sm space-y-1 list-none">
+                  <li>1️⃣ Scan QR or use UPI ID above</li>
+                  <li>2️⃣ Pay your desired amount</li>
+                  <li>3️⃣ Copy the UTR / Transaction Reference Number</li>
+                  <li>4️⃣ Fill the form below &amp; Submit to confirm</li>
+                </ol>
+              </div>
+              <form onSubmit={handleUpiDeposit} className="space-y-3">
+                <div>
+                  <Label className="text-gray-300 text-sm">
+                    UTR / Transaction Reference Number *
+                  </Label>
+                  <Input
+                    value={utrNumber}
+                    onChange={(e) => setUtrNumber(e.target.value)}
+                    placeholder="Enter UTR number from your UPI app"
+                    className="bg-gray-900 border-gray-600 text-white mt-1"
+                    data-ocid="wallet.utr.input"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-300 text-sm">
+                    Amount Paid (₹) *
+                  </Label>
+                  <Input
+                    value={upiAmount}
+                    onChange={(e) =>
+                      setUpiAmount(e.target.value.replace(/\D/g, ""))
+                    }
+                    placeholder="e.g. 500"
+                    className="bg-gray-900 border-gray-600 text-white mt-1"
+                    data-ocid="wallet.upi_amount.input"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-300 text-sm">
+                    Your WhatsApp Number *
+                  </Label>
+                  <Input
+                    value={upiPhone}
+                    onChange={(e) => setUpiPhone(e.target.value)}
+                    placeholder="e.g. 9876543210"
+                    className="bg-gray-900 border-gray-600 text-white mt-1"
+                    data-ocid="wallet.upi_phone.input"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full font-black text-black"
+                  style={{ backgroundColor: "oklch(0.82 0.19 80)" }}
+                  data-ocid="wallet.upi_deposit.submit_button"
+                >
+                  📲 Send via WhatsApp to Confirm
+                </Button>
+              </form>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Withdraw Request Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="rounded-2xl p-6 mb-8"
+          style={{
+            background: "#111",
+            border: "2px solid oklch(0.6 0.3 335)",
+            boxShadow: "0 0 30px oklch(0.6 0.3 335 / 0.2)",
+          }}
+        >
+          <h2 className="font-black text-white text-xl mb-2 flex items-center gap-2">
+            <span style={{ color: "oklch(0.7 0.3 335)" }}>💸</span> Withdraw
+            Request
+          </h2>
+          <p className="text-gray-400 text-sm mb-5">
+            ⚠️ Minimum withdraw:{" "}
+            <span className="font-bold text-white">500 coins</span>
+          </p>
+          <form onSubmit={handleWithdraw} className="space-y-4">
+            <div>
+              <Label className="text-gray-300">Withdraw Amount (coins) *</Label>
+              <Input
+                value={withdrawAmount}
+                onChange={(e) =>
+                  setWithdrawAmount(e.target.value.replace(/\D/g, ""))
+                }
+                placeholder="Min 500 coins"
+                className="bg-gray-900 border-gray-600 text-white mt-1"
+                data-ocid="wallet.withdraw_amount.input"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">Your WhatsApp Number *</Label>
+              <Input
+                value={withdrawPhone}
+                onChange={(e) => setWithdrawPhone(e.target.value)}
+                placeholder="e.g. 9876543210"
+                className="bg-gray-900 border-gray-600 text-white mt-1"
+                data-ocid="wallet.withdraw_phone.input"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">Your UPI ID *</Label>
+              <Input
+                value={withdrawUpi}
+                onChange={(e) => setWithdrawUpi(e.target.value)}
+                placeholder="e.g. yourname@upi"
+                className="bg-gray-900 border-gray-600 text-white mt-1"
+                data-ocid="wallet.withdraw_upi.input"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full font-black text-white"
+              style={{ backgroundColor: "oklch(0.55 0.28 335)" }}
+              data-ocid="wallet.withdraw.submit_button"
+            >
+              📲 Send Withdraw Request via WhatsApp
+            </Button>
+            <p className="text-gray-500 text-xs text-center">
+              ⏰ Our team will process your request within 24 hours.
+            </p>
+          </form>
+        </motion.div>
+
+        {/* Old deposit request section */}
         <div
           className="rounded-2xl p-6 mb-8"
           style={{
@@ -252,6 +506,8 @@ export default function WalletPage() {
             </form>
           )}
         </div>
+
+        {/* Transaction History */}
         <div
           className="rounded-2xl overflow-hidden"
           style={{ background: "#111", border: "2px solid oklch(0.25 0 0)" }}

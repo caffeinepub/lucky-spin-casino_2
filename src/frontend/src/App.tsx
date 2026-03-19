@@ -11,6 +11,7 @@ import Header from "./components/Header";
 import RegisterModal from "./components/RegisterModal";
 import { UserProvider } from "./context/UserContext";
 import GamesPage from "./pages/GamesPage";
+import HistoryPage from "./pages/HistoryPage";
 import HomePage from "./pages/HomePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import WalletPage from "./pages/WalletPage";
@@ -59,6 +60,11 @@ const walletRoute = createRoute({
   path: "/wallet",
   component: WalletPage,
 });
+const historyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/history",
+  component: HistoryPage,
+});
 const minesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/games/mines",
@@ -95,6 +101,7 @@ const routeTree = rootRoute.addChildren([
   gamesRoute,
   leaderboardRoute,
   walletRoute,
+  historyRoute,
   minesRoute,
   aviatorRoute,
   slots777Route,
